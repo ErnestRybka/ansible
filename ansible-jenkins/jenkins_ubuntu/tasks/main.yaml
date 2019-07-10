@@ -1,0 +1,53 @@
+---
+- name: install wget
+  apt:
+    name: wget
+    state: present
+
+- name: install openjdk
+  apt:
+    name: openjdk-8-jdk
+    state: present
+
+- name: download jenkins.repo
+  shell: echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list
+
+- name: import jenkins key
+  apt_key:
+    state: present
+    url: https://pkg.jenkins.io/debian/jenkins.io.key
+
+- name: Update and upgrade apt packages
+  apt:
+    upgrade: yes
+    update_cache: yes
+
+- name: install jenkins
+  apt:
+    name: jenkins
+    state: present
+
+- name: start jenkins
+  systemd:
+    name: jenkins
+    state: started
+
+- name: enable jenkins
+  systemd:
+    name: jenkins
+    enabled: true
+
+- name: sleep for 30 seconds and continue with play
+  wait_for: timeout=30
+
+- name: init password jenkin
+  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+  changed_when: false
+  register: result
+
+- name: print init password jenkins
+  debug:
+    var: result.stdout
+
+- name: firewallrules
+  shell: ufw allow 8080 && ufw status

@@ -1,0 +1,9 @@
+---
+- name: Install Jenkins
+  hosts: server
+  vars:
+    ansible_port: 22
+    ansible_connection: ssh
+  gather_facts: false
+  roles:
+    - jenkins

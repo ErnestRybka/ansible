@@ -1,0 +1,39 @@
+- name: postfix
+  yum:
+    name: '{{ item }}'
+    state: latest
+  with_items:
+    - postfix
+  become: true
+
+- name: Enable and Start postfix
+  service:
+    name: postfix
+    state: started
+    enabled: yes
+  become: true
+
+- name: Add GitLab Repository and Install Package
+  shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+
+- name: install gitlab
+  yum:
+    name: gitlab-ce
+    state: present
+  become: true
+
+- name: Template the correct properties file
+  template:
+    src: gitlab.rb
+    dest: /etc/gitlab/gitlab.rb
+    mode: 0777
+  become: true
+
+- name: firewallrules
+  shell: firewall-cmd --permanent --zone=public --add-port=80/tcp && firewall-cmd --reload
+
+- name: export local env
+  shell: export LC_CTYPE=en_US.UTF-8 && export LC_ALL=en_US.UTF-8
+
+- name: gitlab reconfigure
+  shell: gitlab-ctl reconfigure

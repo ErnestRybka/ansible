@@ -1,0 +1,5 @@
+---
+
+- include: install_java.yml
+- include: install_psql.yml
+- include: sonar.yml

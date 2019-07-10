@@ -1,0 +1,2 @@
+[server]
+slave ansible_host=10.23.7.47 ansible_ssh_user=ansible

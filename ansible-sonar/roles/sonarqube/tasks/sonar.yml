@@ -1,0 +1,32 @@
+---
+
+- name: Add the user 'sonar'
+  command: useradd -p $1$1HTub1Zq$AayFFd7BGfx5gYpKqf0Fe1 sonar 
+    
+- name: Unarchive sonar 
+  unarchive:
+    src: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.6.zip
+    dest: /opt/
+    remote_src: yes
+
+- name: rename sonar folder
+  command: mv /opt/sonarqube-7.6 /opt/sonarqube
+    
+
+- name: Template the correct properties file
+  template:
+    src: sonar.properties.j2
+    dest: /opt/sonarqube/conf/sonar.properties
+    mode: 0777
+  become: true
+
+- name: change own
+  shell: chown -R sonar:sonar /opt/sonarqube/
+
+- name: Start and Enable Sonar Service
+  shell: /opt/sonarqube/bin/linux-x86-64/sonar.sh start
+  become: yes
+  become_user: sonar
+
+- name: firewallrules
+  shell: firewall-cmd --permanent --zone=public --add-port=9000/tcp && firewall-cmd --reload
